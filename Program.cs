@@ -67,6 +67,11 @@ builder.Services.AddSingleton(sp => new EncryptionService(encryptionKey));
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IApiKeyService, ApiKeyService>();
 builder.Services.AddScoped<ITranscriptionService, TranscriptionService>();
+builder.Services.AddScoped<IResponseService, ResponseService>();
+builder.Services.AddScoped<ITranslationService, TranslationService>();
+builder.Services.AddScoped<IConversationService, ConversationService>();
+builder.Services.AddScoped<IMeetingService, MeetingService>();
+builder.Services.AddScoped<IExportService, ExportService>();
 
 // Register HttpClient for transcription providers
 builder.Services.AddHttpClient<GroqWhisperProvider>();
@@ -79,6 +84,9 @@ builder.Services.AddScoped<GroqWhisperProvider>();
 builder.Services.AddScoped<WhisperCppProvider>();
 builder.Services.AddScoped<OpenAIWhisperProvider>();
 builder.Services.AddScoped<ClaudeHaikuSTTProvider>();
+
+// Register HttpClient for AI response providers
+builder.Services.AddHttpClient();
 
 // Configure CORS
 var corsOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>() 

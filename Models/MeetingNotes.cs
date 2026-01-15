@@ -25,7 +25,11 @@ public class MeetingNotes
 
     public string? SpeakerLabels { get; set; }
 
+    public string? Decisions { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation properties
     [ForeignKey(nameof(MeetingId))]
