@@ -25,7 +25,10 @@ public class UserPreferences
     public string PreferredSTTProvider { get; set; } = "GroqWhisper";
 
     [MaxLength(50)]
-    public string PreferredResponseStyle { get; set; } = "concise";
+    public string PreferredResponseStyle { get; set; } = "formal";
+
+    [MaxLength(20)]
+    public string DefaultExportFormat { get; set; } = "pdf";
 
     [MaxLength(50)]
     public string DefaultMeetingType { get; set; } = "general";
