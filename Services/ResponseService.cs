@@ -453,7 +453,8 @@ public class ResponseService : IResponseService
             Provider = provider,
             TokensUsed = tokensUsed,
             Cost = cost,
-            Timestamp = DateTime.UtcNow
+            //Timestamp = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
         };
 
         _context.TransactionLogs.Add(transaction);

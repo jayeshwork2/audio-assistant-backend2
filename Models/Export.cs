@@ -12,14 +12,14 @@ public class Export
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Required]
+    //[Required]
     public int MeetingNotesId { get; set; }
 
     [Required]
     [MaxLength(50)]
     public string Format { get; set; } = string.Empty;
 
-    [Required]
+    //[Required]
     [MaxLength(500)]
     public string FilePath { get; set; } = string.Empty;
 

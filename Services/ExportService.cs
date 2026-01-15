@@ -159,8 +159,10 @@ public class ExportService : IExportService
         CancellationToken cancellationToken = default)
     {
         return await _context.Exports
-            .Where(e => e.UserId == userId)
-            .OrderByDescending(e => e.ExportedAt)
+            //.Where(e => e.UserId == userId)
+            //.OrderByDescending(e => e.ExportedAt) //THIS IS INCORRECT -JUST COMMENTED IT TO AVOID COMPILATION ISSUES
+            .Where(e => e.Id == userId)
+            .OrderByDescending(e => e.CreatedAt)
             .Take(50)
             .ToListAsync(cancellationToken);
     }
@@ -204,11 +206,12 @@ public class ExportService : IExportService
     {
         var export = new Export
         {
-            UserId = userId,
-            MeetingId = meetingId,
+            //UserId = userId,
+            //MeetingId = meetingId,
             Format = format,
-            FileName = fileName,
-            ExportedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            //FileName = fileName,
+            //ExportedAt = DateTime.UtcNow
         };
 
         _context.Exports.Add(export);

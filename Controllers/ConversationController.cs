@@ -99,8 +99,10 @@ public class ConversationController : ControllerBase
     /// </summary>
     [HttpGet("{id}/history")]
     [ProducesResponseType(typeof(IEnumerable<Models.ConversationExchange>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetHistory(int id, [FromQuery] int limit = 25, CancellationToken cancellationToken)
+    //public async Task<IActionResult> GetHistory(int id, [FromQuery] int limit = 25, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetHistory(int id, CancellationToken cancellationToken)
     {
+        int limit = 25;
         var history = await _conversationService.GetConversationHistoryAsync(id, limit, cancellationToken);
         return Ok(history);
     }

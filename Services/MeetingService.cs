@@ -191,7 +191,7 @@ public class MeetingService : IMeetingService
 
         foreach (var transcript in meeting.Conversation.Transcripts)
         {
-            allText.AppendLine(transcript.Text);
+            allText.AppendLine(transcript.RawTranscript);
         }
 
         foreach (var exchange in meeting.Conversation.Exchanges)
