@@ -7,11 +7,13 @@ public class ResponseRequest
     [Required]
     public string Transcript { get; set; } = string.Empty;
 
-    public int? ConversationId { get; set; }
+    public string? ConversationId { get; set; }
 
     public string? ResponseStyle { get; set; }
 
     public string? AiProvider { get; set; }
+
+    public string? UsersApikey { get; set; }
 }
 
 public class ResponseStyleRequest

@@ -1,4 +1,5 @@
 using AudioAssistant.Api.Models;
+using AudioAssistant.Api.Models.DTOs;
 
 namespace AudioAssistant.Api.Services;
 
@@ -11,8 +12,15 @@ public interface IMeetingService
     /// Create a meeting linked to a conversation
     /// </summary>
     Task<Meeting> CreateMeetingAsync(
-        int conversationId,
+        string conversationId,
         string title,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Analyze a meeting transcript to extract context
+    /// </summary>
+    Task<MeetingDetectionResult> AnalyzeMeetingAsync(
+        string transcript,
         CancellationToken cancellationToken = default);
 
     /// <summary>

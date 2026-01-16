@@ -3,6 +3,7 @@ using System;
 using AudioAssistant.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AudioAssistant.Api.Migrations
 {
     [DbContext(typeof(AudioAssistantDbContext))]
-    partial class AudioAssistantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260116165140_AddPhase1Features")]
+    partial class AddPhase1Features
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
@@ -564,11 +567,13 @@ namespace AudioAssistant.Api.Migrations
 
             modelBuilder.Entity("AudioAssistant.Api.Models.TransactionLog", b =>
                 {
-                    b.HasOne("AudioAssistant.Api.Models.User", null)
+                    b.HasOne("AudioAssistant.Api.Models.User", "User")
                         .WithMany("TransactionLogs")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("AudioAssistant.Api.Models.Transcript", b =>

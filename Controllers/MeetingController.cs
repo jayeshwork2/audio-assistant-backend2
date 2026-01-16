@@ -7,7 +7,7 @@ namespace AudioAssistant.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class MeetingController : ControllerBase
 {
     private readonly IMeetingService _meetingService;
@@ -44,6 +44,17 @@ public class MeetingController : ControllerBase
         {
             return BadRequest(new ErrorResponse { Message = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// Analyze meeting transcript (Unified Endpoint)
+    /// </summary>
+    [HttpPost("analyze")]
+    [ProducesResponseType(typeof(MeetingDetectionResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> AnalyzeMeeting([FromBody] MeetingDetectRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _meetingService.AnalyzeMeetingAsync(request.Transcript, cancellationToken);
+        return Ok(result);
     }
 
     /// <summary>

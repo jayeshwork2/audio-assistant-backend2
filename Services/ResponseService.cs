@@ -78,50 +78,81 @@ public class ResponseService : IResponseService
     public async Task<ResponseResult> GenerateResponseAsync(
         string transcript,
         int userId,
-        int? conversationId = null,
+        string? conversationId = null,
         string? responseStyle = null,
         string? aiProvider = null,
+        string? usersApikey = null,
         CancellationToken cancellationToken = default)
     {
         try
         {
             // Get user preferences
-            var preferences = await _context.UserPreferences
-                .FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
+            //var preferences = await _context.UserPreferences
+            //    .FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
 
-            var style = responseStyle ?? preferences?.PreferredResponseStyle ?? "formal";
-            var provider = aiProvider ?? preferences?.PreferredAIProvider ?? "claude";
+            //var style = responseStyle ?? preferences?.PreferredResponseStyle ?? "formal";
+            //var provider = aiProvider ?? preferences?.PreferredAIProvider ?? "claude";
+            var style = responseStyle ?? "formal";
+            var provider = aiProvider ?? "gpt4";
 
             // Get conversation context if applicable
-            string? conversationContext = null;
-            if (conversationId.HasValue)
-            {
-                conversationContext = await GetConversationContextAsync(conversationId.Value, cancellationToken);
-            }
+            //string? conversationContext = null;
+            string? conversationContext = transcript;
+            //int? internalConversationId = null;
+
+            //if (!string.IsNullOrEmpty(conversationId))
+            //{
+            //    var conversation = await _context.Conversations
+            //        .FirstOrDefaultAsync(c => c.SessionId == conversationId, cancellationToken);
+                
+            //    if (conversation != null)
+            //    {
+            //        internalConversationId = conversation.Id;
+            //        conversationContext = await GetConversationContextAsync(internalConversationId.Value, cancellationToken);
+            //    }
+            //    else
+            //    {
+            //         // Verify if we should create it or just ignore context.
+            //         // For response generation, context is optional, so if not found, we just proceed without history
+            //         // But we might want to create it so future calls have history.
+            //         var newConv = new Conversation
+            //         {
+            //             SessionId = conversationId,
+            //             UserId = userId,
+            //             StartedAt = DateTime.UtcNow
+            //         };
+            //         _context.Conversations.Add(newConv);
+            //         await _context.SaveChangesAsync(cancellationToken);
+            //         internalConversationId = newConv.Id;
+            //    }
+            //}
 
             // Build system prompt with style modifier
             var systemPrompt = BuildSystemPrompt(style, conversationContext);
 
             // Try providers in fallback order
-            var providers = new[] { provider, "claude", "gpt4", "gemini" }.Distinct();
+            //var providers = new[] { provider, "claude", "gpt4", "gemini" }.Distinct();
             
-            foreach (var currentProvider in providers)
-            {
+            //foreach (var currentProvider in providers)
+            //{
                 var result = await TryGenerateResponseAsync(
-                    currentProvider,
+                    //currentProvider,
+                    provider,
                     userId,
                     transcript,
                     systemPrompt,
                     style,
+                    usersApikey ?? "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",
                     cancellationToken);
 
                 if (result.Success)
                 {
                     // Log transaction
-                    await LogTransactionAsync(userId, currentProvider, result.TokensUsed, result.Cost, cancellationToken);
+                    //await LogTransactionAsync(userId, currentProvider, result.TokensUsed, result.Cost, cancellationToken);
+                    await LogTransactionAsync(userId, provider, result.TokensUsed, result.Cost, cancellationToken);
                     return result;
                 }
-            }
+            //}
 
             return new ResponseResult
             {
@@ -168,15 +199,16 @@ public class ResponseService : IResponseService
         string transcript,
         string systemPrompt,
         string style,
+        string usersApikey,
         CancellationToken cancellationToken)
     {
         try
         {
             return provider.ToLowerInvariant() switch
             {
-                "claude" => await GenerateWithClaudeAsync(userId, transcript, systemPrompt, style, cancellationToken),
-                "gpt4" or "openai" => await GenerateWithGPT4Async(userId, transcript, systemPrompt, style, cancellationToken),
-                "gemini" or "google" => await GenerateWithGeminiAsync(userId, transcript, systemPrompt, style, cancellationToken),
+                "claude" => await GenerateWithClaudeAsync(userId, transcript, systemPrompt, style, usersApikey, cancellationToken),
+                "gpt4" or "openai" => await GenerateWithGPT4Async(userId, transcript, systemPrompt, style, usersApikey, cancellationToken),
+                "gemini" or "google" => await GenerateWithGeminiAsync(userId, transcript, systemPrompt, style, usersApikey, cancellationToken),
                 _ => new ResponseResult { Success = false, ErrorMessage = $"Unknown provider: {provider}" }
             };
         }
@@ -192,9 +224,10 @@ public class ResponseService : IResponseService
         string transcript,
         string systemPrompt,
         string style,
+        string usersApikey,
         CancellationToken cancellationToken)
     {
-        var apiKey = await GetDecryptedApiKeyAsync(userId, "claude", cancellationToken);
+        var apiKey = await GetDecryptedApiKeyAsync(userId, "claude", usersApikey, cancellationToken);
         if (string.IsNullOrEmpty(apiKey))
         {
             return new ResponseResult { Success = false, ErrorMessage = "Claude API key not found" };
@@ -254,9 +287,10 @@ public class ResponseService : IResponseService
         string transcript,
         string systemPrompt,
         string style,
+        string usersApiKey,
         CancellationToken cancellationToken)
     {
-        var apiKey = await GetDecryptedApiKeyAsync(userId, "openai", cancellationToken);
+        var apiKey = await GetDecryptedApiKeyAsync(userId, "openai", usersApiKey, cancellationToken);
         if (string.IsNullOrEmpty(apiKey))
         {
             return new ResponseResult { Success = false, ErrorMessage = "OpenAI API key not found" };
@@ -267,13 +301,13 @@ public class ResponseService : IResponseService
 
         var requestBody = new
         {
-            model = "gpt-4-turbo-preview",
+            model = "gpt-4.1-mini",
             messages = new[]
             {
                 new { role = "system", content = systemPrompt },
                 new { role = "user", content = transcript }
             },
-            max_tokens = 1024
+            //max_tokens = 1024
         };
 
         var response = await httpClient.PostAsync(
@@ -315,12 +349,13 @@ public class ResponseService : IResponseService
         string transcript,
         string systemPrompt,
         string style,
+        string usersApikey,
         CancellationToken cancellationToken)
     {
-        var apiKey = await GetDecryptedApiKeyAsync(userId, "gemini", cancellationToken);
+        var apiKey = await GetDecryptedApiKeyAsync(userId, "gemini", usersApikey, cancellationToken);
         if (string.IsNullOrEmpty(apiKey))
         {
-            apiKey = await GetDecryptedApiKeyAsync(userId, "google", cancellationToken);
+            apiKey = await GetDecryptedApiKeyAsync(userId, "google", usersApikey, cancellationToken);
         }
         
         if (string.IsNullOrEmpty(apiKey))
@@ -428,8 +463,11 @@ public class ResponseService : IResponseService
         return context.ToString();
     }
 
-    private async Task<string?> GetDecryptedApiKeyAsync(int userId, string provider, CancellationToken cancellationToken)
+    private async Task<string?> GetDecryptedApiKeyAsync(int userId, string provider,string usersApikey, CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(usersApikey))
+            return usersApikey;
+
         var apiKey = await _context.ApiKeys
             .FirstOrDefaultAsync(k => k.UserId == userId && k.Provider.ToLower() == provider.ToLower() && k.IsActive, cancellationToken);
 

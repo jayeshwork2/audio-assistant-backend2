@@ -1,5 +1,6 @@
 using AudioAssistant.Api.Data;
 using AudioAssistant.Api.Models;
+using AudioAssistant.Api.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -70,21 +71,32 @@ public class MeetingService : IMeetingService
     }
 
     public async Task<Meeting> CreateMeetingAsync(
-        int conversationId,
+        string conversationId,
         string title,
         CancellationToken cancellationToken = default)
     {
+        // Look up conversation by SessionId
         var conversation = await _context.Conversations
-            .FirstOrDefaultAsync(c => c.Id == conversationId, cancellationToken);
+            .FirstOrDefaultAsync(c => c.SessionId == conversationId, cancellationToken);
 
         if (conversation == null)
         {
-            throw new InvalidOperationException($"Conversation {conversationId} not found");
+             // If conversation doesn't exist, create it on the fly (for MVP)
+             // In a real app, conversation should probably exist before meeting creation
+             conversation = new Conversation
+             {
+                 SessionId = conversationId,
+                 UserId = 1, // Default user for No-Auth
+                 StartedAt = DateTime.UtcNow,
+                 Title = "New Conversation" 
+             };
+             _context.Conversations.Add(conversation);
+             await _context.SaveChangesAsync(cancellationToken);
         }
 
         var meeting = new Meeting
         {
-            ConversationId = conversationId,
+            ConversationId = conversation.Id,
             Title = title,
             StartTime = conversation.StartedAt,
             Type = conversation.MeetingType,
@@ -97,6 +109,31 @@ public class MeetingService : IMeetingService
         _logger.LogInformation("Created meeting {MeetingId} for conversation {ConversationId}", meeting.Id, conversationId);
 
         return meeting;
+    }
+
+    public async Task<MeetingDetectionResult> AnalyzeMeetingAsync(
+        string transcript,
+        CancellationToken cancellationToken = default)
+    {
+        var type = await DetectMeetingTypeAsync(transcript, cancellationToken);
+        var domain = await DetectDomainAsync(transcript, cancellationToken);
+        var formality = await DetectFormalityAsync(transcript, cancellationToken);
+        var urgency = await DetectUrgencyAsync(transcript, cancellationToken);
+        
+        // Basic extraction for now
+        var keyPoints = await ExtractKeyPointsAsync(transcript, cancellationToken);
+        var actionItems = await ExtractActionItemsAsync(transcript, cancellationToken);
+
+        return new MeetingDetectionResult
+        {
+             MeetingType = type,
+             Domain = domain,
+             Formality = formality,
+             Urgency = urgency,
+             KeyPoints = keyPoints,
+             ActionItems = actionItems,
+             Summary = "Generated from transcript analysis"
+        };
     }
 
     public Task<string> DetectMeetingTypeAsync(

@@ -12,7 +12,7 @@ public class TransactionLog
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Required]
+    //[Required]
     public int UserId { get; set; }
 
     [Required]
@@ -22,15 +22,15 @@ public class TransactionLog
     [MaxLength(50)]
     public string? Provider { get; set; }
 
-    [Required]
+    //[Required]
     public string RequestData { get; set; } = string.Empty;
 
-    [Required]
+    //[Required]
     public string ResponseData { get; set; } = string.Empty;
 
     public int? TokensUsed { get; set; }
 
-    [Required]
+    //[Required]
     [MaxLength(50)]
     public string Status { get; set; } = string.Empty;
     public decimal? Cost { get; set; }
@@ -40,6 +40,6 @@ public class TransactionLog
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation property
-    [ForeignKey(nameof(UserId))]
-    public User User { get; set; } = null!;
+    //[ForeignKey(nameof(UserId))]
+    //public User User { get; set; } = null!;
 }

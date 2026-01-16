@@ -5,7 +5,7 @@ namespace AudioAssistant.Api.Models.DTOs;
 public class MeetingRequest
 {
     [Required]
-    public int ConversationId { get; set; }
+    public string ConversationId { get; set; } = string.Empty;
 
     [Required]
     public string Title { get; set; } = string.Empty;

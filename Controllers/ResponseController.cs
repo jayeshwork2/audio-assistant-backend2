@@ -8,7 +8,7 @@ namespace AudioAssistant.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class ResponseController : ControllerBase
 {
     private readonly IResponseService _responseService;
@@ -44,6 +44,7 @@ public class ResponseController : ControllerBase
             request.ConversationId,
             request.ResponseStyle,
             request.AiProvider,
+            request.UsersApikey,
             cancellationToken);
 
         if (!result.Success)
@@ -84,11 +85,15 @@ public class ResponseController : ControllerBase
 
     private int? GetUserId()
     {
+        // NO-AUTH MODE: Return default user ID 1
+        return 1;
+        /*
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
         if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var userId))
         {
             return userId;
         }
         return null;
+        */
     }
 }

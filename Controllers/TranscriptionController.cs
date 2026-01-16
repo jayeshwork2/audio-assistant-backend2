@@ -173,11 +173,15 @@ public class TranscriptionController : ControllerBase
 
     private int GetUserId()
     {
+        // NO-AUTH MODE: Return default user ID 1
+        return 1;
+        /*
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
             throw new UnauthorizedAccessException("Invalid user token");
         }
         return userId;
+        */
     }
 }

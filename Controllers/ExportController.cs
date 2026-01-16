@@ -9,7 +9,7 @@ namespace AudioAssistant.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class ExportController : ControllerBase
 {
     private readonly IExportService _exportService;
@@ -46,8 +46,9 @@ public class ExportController : ControllerBase
             return BadRequest(new ErrorResponse { Message = result.ErrorMessage ?? "Export failed" });
         }
 
+        // MVP Fix: returning HTML instead of PDF
         var bytes = Encoding.UTF8.GetBytes(result.Content);
-        return File(bytes, result.ContentType, result.FileName);
+        return File(bytes, "text/html", result.FileName + ".html");
     }
 
     /// <summary>
@@ -123,11 +124,15 @@ public class ExportController : ControllerBase
 
     private int? GetUserId()
     {
+        // NO-AUTH MODE: Return default user ID 1
+        return 1;
+        /*
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
         if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var userId))
         {
             return userId;
         }
         return null;
+        */
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AudioAssistant.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class AddPhase1Features : Migration
+    public partial class AddPhase1Features_1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

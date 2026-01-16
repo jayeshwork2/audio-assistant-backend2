@@ -11,9 +11,10 @@ public interface IResponseService
     Task<ResponseResult> GenerateResponseAsync(
         string transcript,
         int userId,
-        int? conversationId = null,
+        string? conversationId = null,
         string? responseStyle = null,
         string? aiProvider = null,
+        string? usersApikey = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
